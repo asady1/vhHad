@@ -13,8 +13,6 @@ from DataFormats.FWLite import Events, Handle
 
 from array import *
 
-ROOT.gSystem.Load('libCondFormatsBTagObjects') 
-
 #options
 from optparse import OptionParser
 parser = OptionParser()
@@ -98,10 +96,6 @@ def div_except(a, b): #divides two numbers unless b<= 0, then returns 1
     else:
         return 1
 
-
-def btagging_efficiency_medium(pt): #returns the btagging efficiency for the medium working point
-   result = 0.898 + 0.0002254*pt -1.74e-6*pt*pt +2.71e-9*pt*pt*pt -1.39e-12*pt*pt*pt*pt
-   return result	
 
 def trigger_function(histo_efficiency,htJet30=700): #returns trigger efficiency based on ht
     result = histo_efficiency.GetBinContent(htJet30)
@@ -288,12 +282,6 @@ json = array('f', [-100.0])
 SF = array('f', [-100.0])
 SFup = array('f', [-100.0])
 SFdown = array('f', [-100.0])
-SF4sj = array('f', [-100.0])
-SF4sjUp = array('f', [-100.0])
-SF4sjDown = array('f', [-100.0])
-SF3sj = array('f', [-100.0])
-SF3sjUp = array('f', [-100.0])
-SF3sjDown = array('f', [-100.0])
 trigWeight = array('f', [-100.0])
 trigWeightUp = array('f', [-100.0])
 trigWeightDown = array('f', [-100.0])
@@ -303,9 +291,6 @@ norm = array('f', [-100.0])
 evt = array('f', [-100.0])
 ht = array('f', [-100.0])
 xsec = array('f', [-100.0])
-sjSF = array('f', [-100.0])
-sjSFup = array('f', [-100.0])
-sjSFdown = array('f', [-100.0])
 
 #creating the tree branches we need
 myTree.Branch('jet1pt', jet1pt, 'jet1pt/F')
@@ -365,12 +350,6 @@ myTree.Branch('json', json, 'json/F')
 myTree.Branch('SF', SF, 'SF/F')
 myTree.Branch('SFup', SFup, 'SFup/F')
 myTree.Branch('SFdown', SFdown, 'SFdown/F')
-myTree.Branch('SF4sj', SF4sj, 'SF4sj/F')
-myTree.Branch('SF4sjUp', SF4sjUp, 'SF4sjUp/F')
-myTree.Branch('SF4sjDown', SF4sjDown, 'SF4sjDown/F')
-myTree.Branch('SF3sj', SF3sj, 'SF3sj/F')
-myTree.Branch('SF3sjUp', SF3sjUp, 'SF3sjUp/F')
-myTree.Branch('SF3sjDown', SF3sjDown, 'SF3sjDown/F')
 myTree.Branch('trigWeight', trigWeight, 'trigWeight/F')
 myTree.Branch('trigWeightUp', trigWeightUp, 'trigWeightUp/F')
 myTree.Branch('trigWeightDown', trigWeightDown, 'trigWeightDown/F')
@@ -380,9 +359,6 @@ myTree.Branch('norm',norm,'norm/F')
 myTree.Branch('evt',evt,'evt/F')
 myTree.Branch('ht', ht, 'ht/F')
 myTree.Branch('xsec', xsec, 'xsec/F')
-myTree.Branch('sjSF', sjSF, 'sjSF/F')
-myTree.Branch('sjSFup', sjSFup, 'sjSFup/F')
-myTree.Branch('sjSFdown', sjSFdown, 'sjSFdown/F')
 myTree.Branch('jetSJfla',jetSJfla,'jetSJfla[4]/F') 
 myTree.Branch('jetSJpt', jetSJpt,'jetSJpt[4]/F')
 myTree.Branch('jetSJcsv',jetSJcsv,'jetSJcsv[4]/F')
@@ -400,18 +376,7 @@ bb2 = ROOT.TH1F("bb2", "After jet cuts", 3, -0.5, 1.5)
 bb3 = ROOT.TH1F("bb3", "After Delta Eta cuts", 3, -0.5, 1.5)
 
 #scale factor calculation tools
-calib = ROOT.BTagCalibration("csvv2","/uscms_data/d3/cvernier/DiH_13TeV/optimization/Alphabet-76x/CSVv2_subjet.csv")
-readerHF = ROOT.BTagCalibrationReader(calib,0, "lt","central")  # 0 is for loose op
-readerHFup = ROOT.BTagCalibrationReader(calib, 0,"lt", "up")  # 0 is for loose op
-readerHFdown = ROOT.BTagCalibrationReader(calib, 0,"lt", "down")  # 0 is for loose op
-readerLF = ROOT.BTagCalibrationReader(calib,0, "incl","central")  # 0 is for loose op
-readerLFup = ROOT.BTagCalibrationReader(calib, 0,"incl", "up")  # 0 is for loose op
-readerLFdown = ROOT.BTagCalibrationReader(calib, 0,"incl", "down")  # 0 is for loose op
 
-
-
-
-gSystem.Load("DrawFunctions_h.so")
 
 count = 0
 #loop over files
@@ -733,193 +698,6 @@ for i in range(num1, num2):
             jet2s2csv[0] = jet2sjcsv[1]
         elif len(jet2sjcsv) == 1:
             jet2s1csv[0] = jet2sjcsv[0]
-        sfsj3 =-1
-        sfsj4 =-1
-	sfsj1 =-1
-        sfsj2 =-1	
-	sfsj3up =-1
-        sfsj4up =-1
-        sfsj1up =-1
-        sfsj2up =-1
-	sfsj3down =-1
-        sfsj4down =-1
-        sfsj1down =-1
-        sfsj2down =-1
-        #finding gen jets for subjets
-        if options.isMC == 'True':
-            if len(jet1sjcsv) > 1:
-                sj1gen = MatchCollection(ujets, jet1sj[0])
-                sj2gen = MatchCollection2(ujets, jet1sj[1],sj1gen)
-		isL = False
-		isL2 = False
-                if sj1gen>0 and ujetsBH[sj1gen]>0 :
-                    sj1flav = BTagEntry.FLAV_B
-		    jetSJfla[0] = 1
-		    jetSJpt[0] = jet1sj[0].Pt()
-        	    jetSJcsv[0] = jet1sjcsv[0]
-                    jetSJeta[0] = jet1sj[0].Eta()
-                elif ujetsCH[sj1gen]>0 and sj1gen>0:
-                    sj1flav = BTagEntry.FLAV_C
-                else:
-		    isL= True 
-		    sj1flav = BTagEntry.FLAV_UDSG	
-                if  ujetsBH[sj2gen]>0 and sj2gen>0:
-                    sj2flav = BTagEntry.FLAV_B
-		    jetSJpt[1] = jet1sj[1].Pt()
-           	    jetSJeta[1] = jet1sj[1].Eta()
-                    jetSJcsv[1] = jet1sjcsv[1]
-		    jetSJfla[1] = 1
-                elif ujetsCH[sj2gen]>0 and sj2gen>0:
-                    sj2flav = BTagEntry.FLAV_C
-                else:
-		    sj2flav = BTagEntry.FLAV_UDSG
-		    isL2 = True
-	   #compute SF
-	        if not isL:	
-	         if(jet1sj[0].Pt()<670. and abs(jet1sj[0].Eta())<2.4 ) :
-
-                  sfsj1 = readerHF.eval(sj1flav, jet1sj[0].Eta(), jet1sj[0].Pt())  # jet flavor, eta, pt
-		  sfsj1up = readerHFup.eval(sj1flav, jet1sj[0].Eta(), jet1sj[0].Pt()) 
-		  sfsj1down = readerHFdown.eval(sj1flav, jet1sj[0].Eta(), jet1sj[0].Pt())
-		 elif abs(jet1sj[0].Eta())>2.4:
-		  sfsj1 = readerHF.eval(sj1flav, 2.399, jet1sj[0].Pt()) 
-		  sfsj1up = readerHFup.eval(sj1flav, 2.399, jet1sj[0].Pt())	
-		  sfsj1down = readerHFdown.eval(sj1flav, 2.399, jet1sj[0].Pt())
-		 elif jet1sj[0].Pt()>670.:
-		  sfsj1 = readerHF.eval(sj1flav, jet1sj[0].Eta(), 669.)   
-		  sfsj1up = readerHFup.eval(sj1flav, jet1sj[0].Eta(), 669.)
-		  sfsj1down = readerHFdown.eval(sj1flav, jet1sj[0].Eta(), 669.)
-		else:
-		 if(jet1sj[0].Pt()<670. and abs(jet1sj[0].Eta())<2.4 ) :
-                  sfsj1 = readerLF.eval(sj1flav, jet1sj[0].Eta(), jet1sj[0].Pt())  # jet flavor, eta, pt
-                  sfsj1up = readerLFup.eval(sj1flav, jet1sj[0].Eta(), jet1sj[0].Pt())
-                  sfsj1down = readerLFdown.eval(sj1flav, jet1sj[0].Eta(), jet1sj[0].Pt())
-                 elif abs(jet1sj[0].Eta())>2.4:
-                  sfsj1 = readerLF.eval(sj1flav, 2.399, jet1sj[0].Pt())
-                  sfsj1up = readerLFup.eval(sj1flav, 2.399, jet1sj[0].Pt())
-                  sfsj1down = readerLFdown.eval(sj1flav, 2.399, jet1sj[0].Pt())
-                 elif jet1sj[0].Pt()>670.:
-                  sfsj1 = readerLF.eval(sj1flav, jet1sj[0].Eta(), 669.)
-                  sfsj1up = readerLFup.eval(sj1flav, jet1sj[0].Eta(), 669.)
-                  sfsj1down = readerLFdown.eval(sj1flav, jet1sj[0].Eta(), 669.)
-		if not isL2:
-		 if(jet1sj[1].Pt()<670. and abs(jet1sj[1].Eta())<2.4 ) :
-                  sfsj2 = readerHF.eval(sj2flav, jet1sj[1].Eta(), jet1sj[1].Pt())  # jet flavor, eta, pt
-                  sfsj2up = readerHFup.eval(sj2flav, jet1sj[1].Eta(), jet1sj[1].Pt())
-                  sfsj2down = readerHFdown.eval(sj2flav, jet1sj[1].Eta(), jet1sj[1].Pt())
-                 elif abs(jet1sj[1].Eta())>2.4:
-                  sfsj2 = readerHF.eval(sj2flav, 2.399, jet1sj[1].Pt())
-                  sfsj2up = readerHFup.eval(sj2flav, 2.399, jet1sj[1].Pt())
-                  sfsj2down = readerHFdown.eval(sj2flav, 2.399, jet1sj[1].Pt())
-                 elif jet1sj[1].Pt()>670.:
-                  sfsj2 = readerHF.eval(sj2flav, jet1sj[1].Eta(), 669.)
-                  sfsj2up = readerHFup.eval(sj2flav, jet1sj[1].Eta(), 669.)
-                  sfsj2down = readerHFdown.eval(sj2flav, jet1sj[1].Eta(), 669.)
-	        else:	
-		 if(jet1sj[1].Pt()<670. and abs(jet1sj[1].Eta())<2.4 ) :
-                  sfsj2 = readerLF.eval(sj2flav, jet1sj[1].Eta(), jet1sj[1].Pt())  # jet flavor, eta, pt
-                  sfsj2up = readerLFup.eval(sj2flav, jet1sj[1].Eta(), jet1sj[1].Pt())
-                  sfsj2down = readerLFdown.eval(sj2flav, jet1sj[1].Eta(), jet1sj[1].Pt())
-                 elif abs(jet1sj[1].Eta())>2.4:
-                  sfsj2 = readerLF.eval(sj2flav, 2.399, jet1sj[1].Pt())
-                  sfsj2up = readerLFup.eval(sj2flav, 2.399, jet1sj[1].Pt())
-                  sfsj2down = readerLFdown.eval(sj2flav, 2.399, jet1sj[1].Pt())
-                 elif jet1sj[1].Pt()>670.:
-                  sfsj2 = readerLF.eval(sj2flav, jet1sj[1].Eta(), 669.)
-                  sfsj2up = readerLFup.eval(sj2flav, jet1sj[1].Eta(), 669.)
-                  sfsj2down = readerLFdown.eval(sj2flav, jet1sj[1].Eta(), 669.)
-	    
-	    if len(jet2sjcsv) > 1:
-                sj3gen = MatchCollection(ujets, jet2sj[0])
-                sj4gen = MatchCollection2(ujets, jet2sj[1],sj3gen)
-		isL = False
-                isL2 = False
-                if  ujetsBH[sj3gen]>0 and sj3gen>0.:
-                    sj3flav = BTagEntry.FLAV_B
-		    jetSJpt[2] = jet2sj[0].Pt()
-                    jetSJeta[2] = jet2sj[0].Eta()
-                    jetSJcsv[2] = jet2sjcsv[0]
-		    jetSJfla[2] = 1
-                elif ujetsCH[sj3gen]>0 and sj3gen>0.:
-                    sj3flav = BTagEntry.FLAV_C
-                else:
-                    sj3flav = BTagEntry.FLAV_UDSG
-	 	    isL = True
-                if  ujetsBH[sj4gen]>0 and sj4gen>0.:
-                    sj4flav = BTagEntry.FLAV_B
-		    jetSJpt[3] = jet2sj[1].Pt()
-                    jetSJeta[3] = jet2sj[1].Eta()
-                    jetSJcsv[3] = jet2sjcsv[1]
-                    jetSJfla[3] = 1
-                elif ujetsCH[sj4gen]>0 and sj4gen>0.:
-                    sj4flav = BTagEntry.FLAV_C
-                else:
-                    sj4flav = BTagEntry.FLAV_UDSG
-		    isL2 = True
-           #compute SF
-		if not isL:
-                 if(jet2sj[0].Pt()<670. and abs(jet2sj[0].Eta())<2.4 ) :
-                  sfsj3 = readerHF.eval(sj3flav, jet2sj[0].Eta(), jet2sj[0].Pt())  # jet flavor, eta, pt
-                  sfsj3up = readerHFup.eval(sj3flav, jet2sj[0].Eta(), jet2sj[0].Pt())
-                  sfsj3down = readerHFdown.eval(sj3flav, jet2sj[0].Eta(), jet2sj[0].Pt())
-                 elif abs(jet2sj[0].Eta())>2.4:
-                  sfsj3 = readerHF.eval(sj3flav, 2.399, jet2sj[0].Pt())
-                  sfsj3up = readerHFup.eval(sj3flav, 2.399, jet2sj[0].Pt())
-                  sfsj3down = readerHFdown.eval(sj3flav, 2.399, jet2sj[0].Pt())
-                 elif jet2sj[0].Pt()>670.:
-                  sfsj3 = readerHF.eval(sj3flav, jet2sj[0].Eta(), 669.)
-                  sfsj3up = readerHFup.eval(sj3flav, jet2sj[0].Eta(), 669.)
-                  sfsj3down = readerHFdown.eval(sj3flav, jet2sj[0].Eta(), 669.)
-		else:
-		 if(jet2sj[0].Pt()<670. and abs(jet2sj[0].Eta())<2.4 ) :
-                  sfsj3 = readerLF.eval(sj3flav, jet2sj[0].Eta(), jet2sj[0].Pt())  # jet flavor, eta, pt
-                  sfsj3up = readerLFup.eval(sj3flav, jet2sj[0].Eta(), jet2sj[0].Pt())
-                  sfsj3down = readerLFdown.eval(sj3flav, jet2sj[0].Eta(), jet2sj[0].Pt())
-                 elif abs(jet2sj[0].Eta())>2.4:
-                  sfsj3 = readerLF.eval(sj3flav, 2.399, jet2sj[0].Pt())
-                  sfsj3up = readerLFup.eval(sj3flav, 2.399, jet2sj[0].Pt())
-                  sfsj3down = readerLFdown.eval(sj3flav, 2.399, jet2sj[0].Pt())
-                 elif jet2sj[0].Pt()>670.:
-                  sfsj3 = readerLF.eval(sj3flav, jet2sj[0].Eta(), 669.)
-                  sfsj3up = readerLFup.eval(sj3flav, jet2sj[0].Eta(), 669.)
-                  sfsj3down = readerLFdown.eval(sj3flav, jet2sj[0].Eta(), 669.)
-		if not isL2:
-                 if(jet2sj[1].Pt()<670. and abs(jet2sj[1].Eta())<2.4 ) :
-                  sfsj4 = readerHF.eval(sj4flav, jet2sj[1].Eta(), jet2sj[1].Pt())  # jet flavor, eta, pt
-                  sfsj4up = readerHFup.eval(sj4flav, jet2sj[1].Eta(), jet2sj[1].Pt())
-                  sfsj4down = readerHFdown.eval(sj4flav, jet2sj[1].Eta(), jet2sj[1].Pt())
-                 elif abs(jet2sj[1].Eta())>2.4:
-                  sfsj4 = readerHF.eval(sj4flav, 2.399, jet2sj[1].Pt())
-                  sfsj4up = readerHFup.eval(sj4flav, 2.399, jet2sj[1].Pt())
-                  sfsj4down = readerHFdown.eval(sj4flav, 2.399, jet2sj[1].Pt())
-                 elif jet2sj[1].Pt()>670.:
-                  sfsj4 = readerHF.eval(sj4flav, jet2sj[1].Eta(), 669.)
-                  sfsj4up = readerHFup.eval(sj4flav, jet2sj[1].Eta(), 669.)
-                  sfsj4down = readerHFdown.eval(sj4flav, jet2sj[1].Eta(), 669.)
-		else:
-		 if(jet2sj[1].Pt()<670. and abs(jet2sj[1].Eta())<2.4 ) :
-                  sfsj4 = readerLF.eval(sj4flav, jet2sj[1].Eta(), jet2sj[1].Pt())  # jet flavor, eta, pt
-                  sfsj4up = readerLFup.eval(sj4flav, jet2sj[1].Eta(), jet2sj[1].Pt())
-                  sfsj4down = readerLFdown.eval(sj4flav, jet2sj[1].Eta(), jet2sj[1].Pt())
-                 elif abs(jet2sj[1].Eta())>2.4:
-                  sfsj4 = readerLF.eval(sj4flav, 2.399, jet2sj[1].Pt())
-                  sfsj4up = readerLFup.eval(sj4flav, 2.399, jet2sj[1].Pt())
-                  sfsj4down = readerLFdown.eval(sj4flav, 2.399, jet2sj[1].Pt())
-                 elif jet2sj[1].Pt()>670.:
-                  sfsj4 = readerLF.eval(sj4flav, jet2sj[1].Eta(), 669.)
-                  sfsj4up = readerLFup.eval(sj4flav, jet2sj[1].Eta(), 669.)
-                  sfsj4down = readerLFdown.eval(sj4flav, jet2sj[1].Eta(), 669.)
-            
-                #sfsj2 = reader.eval(sj2flav, jet1sj[1].Eta(), jet1sj[1].Pt())
-#                print "SF " + str(sfsj1) + " for flavor " + str(sj1flav) + " for eta " + str(jet1sj[0].Eta()) + " for pt " + str(jet1sj[0].Pt())
-
-        #for min subjet csv
-#	for j in range(len(jet1sjcsv)):
-#     	    if jet1sjcsv[j] < jet1mscsv[0]:
-#		    jet1mscsv[0] = jet1sjcsv[j]
-#	for j in range(len(jet2sjcsv)):
-#	    if jet2sjcsv[j] < jet2mscsv[0]:
-#		    jet2mscsv[0] = jet2sjcsv[j]
 	
 	#filling bbtag
 	jet1bbtag[0] = jet_bbtag[idxH1] 
@@ -980,65 +758,10 @@ for i in range(num1, num2):
             sf2 = 1.048
             sf2change = 0.215
         
-        SF[0] = sf1*sf2
-        SFup[0] = sf1*(1+sf1change)*sf2*(1+sf2change)
-        SFdown[0] = sf1*(1-sf1change)*sf2*(1-sf2change)
+        SF[0] = sf1 
+        SFup[0] = sf1*(1+sf1change)
+        SFdown[0] = sf1*(1-sf1change)
 
-	SF4sj[0] = -1
-	SF4sjUp[0] = -1
-	SF4sjDown[0] = -1	
-	if n1sj >1 and n2sj>1:
-	 SF4sj[0] = sfsj1*sfsj2*sfsj3*sfsj4
-	 SF4sjUp[0] = sfsj1up*sfsj2up*sfsj3up*sfsj4up 	
-	 SF4sjDown[0] = sfsj1down*sfsj2down*sfsj3down*sfsj4down  
-	
-	SF3sj[0] =-1.
-	SF3sjUp[0] =-1.
-	SF3sjDown[0] =-1.
-	#3b-tag category
-	#SF=[((1-SF1e1))/(1-e1)]*SF2*SF3*SF4
-	#e1 estimated in HH signal sample to be 
-	'''	
-	if (jet1s1csv[0] >0.460 and jet2s1csv[0] >0.460  and jet1s2csv[0] >0.460 and jet2s2csv[0] < 0.460 ) or (jet1s1csv[0] >0.460 and jet2s1csv[0] >0.460  and jet1s2csv[0] <0.460 and jet2s2csv[0] > 0.460 ) or (jet1s1csv[0] >0.460 and jet2s1csv[0] <0.460  and jet1s2csv[0] >0.460 and jet2s2csv[0] > 0.460 ) or (jet1s1csv[0] <0.460 and jet2s1csv[0] > 0.460  and jet1s2csv[0] >0.460 and jet2s2csv[0] > 0.460 ):
-	 if n1sj >1 and n2sj>1:
-	  if(jet1s1csv[0] >0.460) :
-            SF3sj[0] *= sfsj1
-            SF3sjUp[0] *= sfsj1up
-            SF3sjDown[0] *= sfsj1down
-	  else : 
-	    SF3sj[0] *= (1-sfsj1*btagging_efficiency_medium(jet1sj[0].Pt()))/(1-btagging_efficiency_medium(jet1sj[0].Pt()))
-            SF3sjUp[0] *= (1-sfsj1up*btagging_efficiency_medium(jet1sj[0].Pt()))/(1-btagging_efficiency_medium(jet1sj[0].Pt()))
-            SF3sjDown[0] *= (1-sfsj1down*btagging_efficiency_medium(jet1sj[0].Pt()))/(1-btagging_efficiency_medium(jet1sj[0].Pt()))
-          if(jet1s2csv[0] >0.460) :
-            SF3sj[0] *= sfsj2
-            SF3sjUp[0] *= sfsj2up
-            SF3sjDown[0] *= sfsj2down
-          else :
-            SF3sj[0] *= (1-sfsj2*btagging_efficiency_medium(jet1sj[1].Pt()))/(1-btagging_efficiency_medium(jet1sj[1].Pt()))
-            SF3sjUp[0] *= (1-sfsj2up*btagging_efficiency_medium(jet1sj[1].Pt()))/(1-btagging_efficiency_medium(jet1sj[1].Pt()))
-            SF3sjDown[0] *= (1-sfsj2down*btagging_efficiency_medium(jet1sj[1].Pt()))/(1-btagging_efficiency_medium(jet1sj[1].Pt()))
-
-          if(jet2s1csv[0] >0.460) :
-            SF3sj[0] *= sfsj3
-            SF3sjUp[0] *= sfsj3up
-            SF3sjDown[0] *= sfsj3down
-          else:
-            SF3sj[0] *= (1-sfsj3*btagging_efficiency_medium(jet2sj[0].Pt()))/(1-btagging_efficiency_medium(jet2sj[0].Pt()))
-            SF3sjUp[0] *= (1-sfsj3up*btagging_efficiency_medium(jet2sj[0].Pt()))/(1-btagging_efficiency_medium(jet2sj[0].Pt()))
-            SF3sjDown[0] *= (1-sfsj3down*btagging_efficiency_medium(jet2sj[0].Pt()))/(1-btagging_efficiency_medium(jet2sj[0].Pt()))
-          if(jet2s2csv[0] >0.460) :
-            SF3sj[0] *= sfsj4
-            SF3sjUp[0] *= sfsj4up
-            SF3sjDown[0] *= sfsj4down
-          else:
-            SF3sj[0] *= (1-sfsj4*btagging_efficiency_medium(jet2sj[1].Pt()))/(1-btagging_efficiency_medium(jet2sj[1].Pt()))
-            SF3sjUp[0] *= (1-sfsj4up*btagging_efficiency_medium(jet2sj[1].Pt()))/(1-btagging_efficiency_medium(jet2sj[1].Pt()))
-            SF3sjDown[0] *= (1-sfsj4down*btagging_efficiency_medium(jet2sj[1].Pt()))/(1-btagging_efficiency_medium(jet2sj[1].Pt()))
-	
-	if SF3sj[0] <0. : SF3sj[0] = -SF3sj[0]
-	if SF3sjUp[0] <0. : SF3sjUp[0] = -SF3sjUp[0]
-	if SF3sjDown[0] <0. : SF3sjDown[0] = -SF3sjDown[0]	
-  	'''
 	#filling the tree
         myTree.Fill()
 
