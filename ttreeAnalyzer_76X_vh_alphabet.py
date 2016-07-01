@@ -174,13 +174,13 @@ for i in range(0, nevent) :
     bothjets = 0
     jetV = 0
     #determining which jet is which
-    if (65 < treeMine.jet1pmass < 105) and (65 < treeMine.jet2pmass < 105):
+    if (45 < treeMine.jet1pmass < 65) and (45 < treeMine.jet2pmass < 65):
         bothjets = 1
     if bothjets == 0: #either only one jet is the V jet, or none are
-        if (65 < treeMine.jet1pmass < 105): #jet 1 is V jet
+        if (45 < treeMine.jet1pmass < 65): #jet 1 is V jet
             jetV = 1
         else:
-            if (65 < treeMine.jet2pmass < 105):#jet 2 is V jet
+            if (45 < treeMine.jet2pmass < 65):#jet 2 is V jet
                 jetV = 2
     else: #both jets are in V mass window
         if treeMine.jet2tau21 > treeMine.jet1tau21: #jet 1 has the smaller tau21, so its V
@@ -265,6 +265,23 @@ for i in range(0, nevent) :
         jetVl1l2l3[0] = treeMine.jet2l1l2l3
         jetVl2l3[0] = treeMine.jet2l2l3
         jetVJER[0] = treeMine.jet2JER
+
+    if jetHpt[0] < 400:
+        sf1 = 0.929
+        sf1change = 0.078
+    elif jetHpt[0] >= 400 and jetHpt[0] < 500:
+        sf1 = 0.999
+        sf1change = 0.126
+    elif jetHpt[0] >= 500 and jetHpt[0] < 600:
+        sf1 = 0.933
+        sf1change = 0.195
+    elif jetHpt[0] >= 600:
+        sf1 = 1.048
+        sf1change = 0.215
+        
+    SF[0] = sf1
+    SFup[0] = sf1*(1+sf1change)
+    SFdown[0] = sf1*(1-sf1change)
 
     etadiff[0] = treeMine.etadiff
     dijetmass[0] = treeMine.dijetmass
