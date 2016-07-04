@@ -60,8 +60,8 @@ for m in mass:
 
 	signal_file= TFile("tree_WP_%s_VH_alph.root"%(m))
 	tree = signal_file.Get("mynewTree") 
-	bbj = signal_file.Get("bbj")
-	generatedEvents =bbj.GetEntries()
+	bbj = signal_file.Get("bb0")
+	generatedEvents =bb0.GetEntries()
 	writeplot(tree, Signal_mX, VAR, sigregcut, "puWeights*SF")#(trigger_function(int(round(htJet40eta3)))*weight2(nTrueInt))")
         writeplot(tree, Signal_mX_btag_up, VAR, sigregcut, "puWeights*SFup")
 	writeplot(tree, Signal_mX_btag_down, VAR, sigregcut, "puWeights*SFdown")
