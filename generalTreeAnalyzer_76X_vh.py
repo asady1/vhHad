@@ -279,9 +279,6 @@ puWeights = array('f', [-100.0])
 puWeightsUp = array('f', [-100.0])
 puWeightsDown = array('f', [-100.0])
 json = array('f', [-100.0])
-SF = array('f', [-100.0])
-SFup = array('f', [-100.0])
-SFdown = array('f', [-100.0])
 trigWeight = array('f', [-100.0])
 trigWeightUp = array('f', [-100.0])
 trigWeightDown = array('f', [-100.0])
@@ -347,9 +344,6 @@ myTree.Branch('jet2l2l3', jet2l2l3, 'jet2l2l3/F')
 myTree.Branch('jet1JER', jet1JER, 'jet1JER/F') 
 myTree.Branch('jet2JER', jet2JER, 'jet2JER/F') 
 myTree.Branch('json', json, 'json/F')
-myTree.Branch('SF', SF, 'SF/F')
-myTree.Branch('SFup', SFup, 'SFup/F')
-myTree.Branch('SFdown', SFdown, 'SFdown/F')
 myTree.Branch('trigWeight', trigWeight, 'trigWeight/F')
 myTree.Branch('trigWeightUp', trigWeightUp, 'trigWeightUp/F')
 myTree.Branch('trigWeightDown', trigWeightDown, 'trigWeightDown/F')
@@ -726,42 +720,7 @@ for i in range(num1, num2):
         else:
             isData[0] = 0
 
-        #handling hbb tagger SFs
-        sf1 = -1
-        sf2 = -1
-        sf1change = 1000000
-        sf2change = 1000000
-
-        if jet1pt[0] < 400:
-            sf1 = 0.929
-            sf1change = 0.078
-        elif jet1pt[0] >= 400 and jet1pt[0] < 500:
-            sf1 = 0.999
-            sf1change = 0.126
-        elif jet1pt[0] >= 500 and jet1pt[0] < 600:
-            sf1 = 0.933
-            sf1change = 0.195
-        elif jet1pt[0] >= 600:
-            sf1 = 1.048
-            sf1change = 0.215
-
-        if jet2pt[0] < 400:
-            sf2 = 0.929
-            sf2change = 0.078
-        elif jet2pt[0] >= 400 and jet2pt[0] < 500:
-            sf2 = 0.999
-            sf2change = 0.126
-        elif jet2pt[0] >= 500 and jet2pt[0] < 600:
-            sf2 = 0.933
-            sf2change = 0.195
-        elif jet2pt[0] >= 600:
-            sf2 = 1.048
-            sf2change = 0.215
-        
-        SF[0] = sf1 
-        SFup[0] = sf1*(1+sf1change)
-        SFdown[0] = sf1*(1-sf1change)
-
+       
 	#filling the tree
         myTree.Fill()
 
