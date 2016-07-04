@@ -31,6 +31,7 @@ presel = "(dijetmass_corr>800&jetVID>0.&&jetHID>0&jetVpmass<105&jetVpmass>65&(je
 sigregcutNoTrig = "jetHpmass>105&jetHpmass<135&jetHbbtag>0.6&"+presel
 sigregcut = "jetHpmass>105&jetHpmass<135&jetHbbtag>0.6&triggerpassbb>0.&"+presel
 lumi =2691.
+SF_tau21 =1.
 background = TFile("outputs/SR_output.root")
 UD = ['Up','Down']
 
@@ -46,6 +47,8 @@ for m in mass:
 	Signal_mX_trig_down = TH1F("Signal_mX_%s_CMS_eff_trigDown"%(m), "", len(binBoundaries)-1, array('d',binBoundaries))
 	Signal_mX_btag_up = TH1F("Signal_mX_%s_CMS_eff_btagUp"%(m), "", len(binBoundaries)-1, array('d',binBoundaries))
         Signal_mX_btag_down = TH1F("Signal_mX_%s_CMS_eff_btagDown"%(m), "", len(binBoundaries)-1, array('d',binBoundaries))
+        Signal_mX_pu_up = TH1F("Signal_mX_%s_CMS_eff_puUp"%(m), "", len(binBoundaries)-1, array('d',binBoundaries))
+ 	Signal_mX_pu_down = TH1F("Signal_mX_%s_CMS_eff_puDown"%(m), "", len(binBoundaries)-1, array('d',binBoundaries))
 	Signal_mX_FJEC_Up = TH1F("Signal_mX_%s_CMS_eff_JECUp"%(m), "", len(binBoundaries)-1, array('d',binBoundaries))
 	Signal_mX_FJEC_Down = TH1F("Signal_mX_%s_CMS_eff_JECDown"%(m), "", len(binBoundaries)-1, array('d',binBoundaries))
 	Signal_mX_FJER_Up = TH1F("Signal_mX_%s_CMS_eff_JERUp"%(m), "", len(binBoundaries)-1, array('d',binBoundaries))
@@ -57,27 +60,34 @@ for m in mass:
 
 	signal_file= TFile("tree_WP_%s_VH_alph.root"%(m))
 	tree = signal_file.Get("mynewTree") 
-	writeplot(tree, Signal_mX, VAR, sigregcut, "puWeights*SF/norm")#(trigger_function(int(round(htJet40eta3)))*weight2(nTrueInt))")
-        writeplot(tree, Signal_mX_btag_up, VAR, sigregcut, "puWeights*SFup/norm")
-	writeplot(tree, Signal_mX_btag_down, VAR, sigregcut, "puWeights*SFdown/norm")
-        writeplot(tree, Signal_mX_trig_up, VAR, sigregcutNoTrig, "trigWeightUp*puWeights*SF/norm")
-	writeplot(tree, Signal_mX_trig_down, VAR, sigregcutNoTrig, "trigWeightDown*puWeights*SF/norm")
+	bbj = signal_file.Get("bbj")
+	generatedEvents =bbj.GetEntries()
+	writeplot(tree, Signal_mX, VAR, sigregcut, "puWeights*SF")#(trigger_function(int(round(htJet40eta3)))*weight2(nTrueInt))")
+        writeplot(tree, Signal_mX_btag_up, VAR, sigregcut, "puWeights*SFup")
+	writeplot(tree, Signal_mX_btag_down, VAR, sigregcut, "puWeights*SFdown")
+        writeplot(tree, Signal_mX_trig_up, VAR, sigregcutNoTrig, "trigWeightUp*puWeights*SF")
+	writeplot(tree, Signal_mX_trig_down, VAR, sigregcutNoTrig, "trigWeightDown*puWeights*SF")
+	writeplot(tree, Signal_mX_pu_up, VAR, sigregcut, "puWeightsUp*SF")
+	writeplot(tree, Signal_mX_pu_down, VAR, sigregcut, "puWeightsDown*SF")
 	###missing here the pu variation
 
 	print(Signal_mX.Integral())
 
 	btaglnN= 1.+ abs(Signal_mX_btag_up.GetSumOfWeights()-Signal_mX_btag_down.GetSumOfWeights())/(2.*Signal_mX_btag_up.GetSumOfWeights())
+	PUlnN= 1.+ abs(Signal_mX_pu_up.GetSumOfWeights()-Signal_mX_pu_down.GetSumOfWeights())/(2.*Signal_mX.GetSumOfWeights())
 	Signal_mX.Scale(lumi*0.01)
 	
- 	Signal_mX_btag_up.Scale(lumi*0.01)
-	Signal_mX_btag_down.Scale(lumi*0.01)
-	Signal_mX_trig_up.Scale(0.01*lumi)
-	Signal_mX_trig_down.Scale(0.01*lumi)
+ 	Signal_mX_btag_up.Scale(SF_tau21*lumi*0.01/generatedEvents)
+	Signal_mX_btag_down.Scale(SF_tau21*lumi*0.01/generatedEvents)
+	Signal_mX_trig_up.Scale(SF_tau21*0.01*lumi/generatedEvents)
+	Signal_mX_trig_down.Scale(SF_tau21*0.01*lumi/generatedEvents)
+	Signal_mX_pu_up.Scale(lumi*SF_tau21*0.01/generatedEvents)
+        Signal_mX_pu_down.Scale(lumi*SF_tau21*0.01/generatedEvents)
 
 	MJEClnN= 1.02 ## add variation from ntuples
 	FJEClnN= 1.02
 	FJERlnN= 1.02
-	PUlnN  = 1.01
+
 
         signal_integral = Signal_mX.Integral()
 	print(signal_integral) 
