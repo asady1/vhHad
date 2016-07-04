@@ -62,7 +62,7 @@ for m in mass:
 	writeplot(tree, Signal_mX_btag_down, VAR, sigregcut, "puWeights*SFdown/norm")
         writeplot(tree, Signal_mX_trig_up, VAR, sigregcutNoTrig, "trigWeightUp*puWeights*SF/norm")
 	writeplot(tree, Signal_mX_trig_down, VAR, sigregcutNoTrig, "trigWeightDown*puWeights*SF/norm")
-
+	###missing here the pu variation
 
 	print(Signal_mX.Integral())
 
@@ -74,9 +74,10 @@ for m in mass:
 	Signal_mX_trig_up.Scale(0.01*lumi)
 	Signal_mX_trig_down.Scale(0.01*lumi)
 
-	MJEClnN= 1.02
+	MJEClnN= 1.02 ## add variation from ntuples
 	FJEClnN= 1.02
 	FJERlnN= 1.02
+	PUlnN  = 1.01
 
         signal_integral = Signal_mX.Integral()
 	print(signal_integral) 
@@ -165,12 +166,13 @@ for m in mass:
         text_file.write("rate                                            %f  %f\n"%(signal_integral,qcd_integral))
         text_file.write("-------------------------------------------------------------------------------\n")
 	text_file.write("lumi_13TeV lnN                          1.027       -\n")	
-        text_file.write("CMS_eff_tau21_sf lnN                    1.027       -\n") #(0.028/0.979)*(2)
-        text_file.write("CMS_eff_Htag_sf lnN                    1.1       -\n")   
+        text_file.write("CMS_eff_tau21_sf lnN                    1.027       -\n") #(0.028/0.979)
+        #text_file.write("CMS_eff_Htag_sf lnN                    1.1       -\n")   
         text_file.write("CMS_JEC lnN 		     %f        -\n"%(FJEClnN)) 	
 	text_file.write("CMS_massJEC lnN                 %f        -\n"%(MJEClnN))
 	text_file.write("CMS_eff_bbtag_sf lnN                    %f       -\n"%(btaglnN))
         text_file.write("CMS_JER lnN                    %f        -\n"%(FJERlnN))
+        text_file.write("CMS_PU lnN                    %f        -\n"%(PUlnN))
 	text_file.write("CMS_eff_trig shapeN2           1.0   -\n")
         text_file.write("CMS_scale_13TeV shapeN2                           -       1.000\n")
 	text_file.write("CMS_PDF_Scales lnN   1.02 -       \n")
