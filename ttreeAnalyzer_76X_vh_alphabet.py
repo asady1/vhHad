@@ -297,9 +297,6 @@ for i in range(0, nevent) :
     vtype[0] = treeMine.vtype
     isData[0] = treeMine.isData
     json[0] = treeMine.json
-    SF[0] = treeMine.SF
-    SFup[0] = treeMine.SFup
-    SFdown[0] = treeMine.SFdown
     trigWeight[0] = treeMine.trigWeight
     trigWeightUp[0] = treeMine.trigWeightUp
     trigWeightDown[0] = treeMine.trigWeightDown
