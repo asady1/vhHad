@@ -75,7 +75,7 @@ for m in mass:
 
 	btaglnN= 1.+ abs(Signal_mX_btag_up.GetSumOfWeights()-Signal_mX_btag_down.GetSumOfWeights())/(2.*Signal_mX_btag_up.GetSumOfWeights())
 	PUlnN= 1.+ abs(Signal_mX_pu_up.GetSumOfWeights()-Signal_mX_pu_down.GetSumOfWeights())/(2.*Signal_mX.GetSumOfWeights())
-	Signal_mX.Scale(lumi*0.01)
+	Signal_mX.Scale(SF_tau21*lumi*0.01/generatedEvents)
 	
  	Signal_mX_btag_up.Scale(SF_tau21*lumi*0.01/generatedEvents)
 	Signal_mX_btag_down.Scale(SF_tau21*lumi*0.01/generatedEvents)
